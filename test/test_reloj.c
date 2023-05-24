@@ -38,7 +38,7 @@ void setUp(void){   //codigo de inicializacion
 // ‣ Al inicializar el reloj está en 00:00 y con hora invalida.
 void test_reloj_arranca_con_hora_invalida(void){
     static const uint8_t ESPERADO[] = {0, 0, 0, 0, 0, 0};
-    reloj = ClockCreate(TICKS_PER_SECOND); //esto me obliga a cambiar algo en reloj.h CAMBIAR
+    reloj = ClockCreate(TICKS_PER_SECOND); 
     uint8_t hora[TIME_SIZE] = {0xFF};
     TEST_ASSERT_FALSE(ClockGetTime(reloj,hora,sizeof(hora)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO,hora,sizeof(ESPERADO));
@@ -95,7 +95,7 @@ void test_incrementar_hora_unidad(void){
 
 void test_incrementar_hora_decena(void){   
     static const uint8_t ESPERADO[] = {2, 2, 3, 4, 0, 0};
-    SIMULATE_SECONDS((60*60*10), ClockTick(reloj));
+    SIMULATE_SECONDS(60*60*10, ClockTick(reloj));
     ClockGetTime(reloj, hora, sizeof(hora));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO,hora, sizeof(ESPERADO));
 }
