@@ -32,18 +32,13 @@ SPDX-License-Identifier: MIT
 
 //! 
 struct clock_s{
-    // union{
-    //     uint8_t hora[6];
-    //     struct {
-    //         uint8_t hora[2];
-    //         uint8_t minutos[2];
-    //         uint8_t segundos[2];
-    //     }actual;
-    // }
     uint8_t hora_actual[TIME_SIZE]; //!<
+    uint8_t alarma_actual[TIME_SIZE];
     int tics_por_segundo;   //!<
     int ticks;  //!<
     bool valida;    //!<
+    bool alarma_estado;
+    bool alarma_activa;
 };
     
 
@@ -79,9 +74,34 @@ bool ClockSetTime(clock_t reloj, const uint8_t * hora, int size){
     return true;
 }
 
+bool AlarmGetTime(clock_t reloj, uint8_t * hora, int size){
+    //memset(hora, 0, size);
+    memcpy(hora, reloj->alarma_actual, size);
+    return reloj->alarma_estado;
+}
+
+bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size){
+    //memset(hora, 0, size);
+    memcpy(reloj->alarma_actual, hora,size);
+    reloj->alarma_estado = true;
+    return reloj->alarma_estado;
+}
+
+bool isAlarmActive(clock_t reloj){
+    reloj->alarma_activa = false;
+    if (memcmp(reloj->alarma_actual, reloj->hora_actual, TIME_SIZE) == 0){
+        reloj->alarma_activa = true;
+    }
+    return reloj->alarma_activa;
+}
+
+
 void ClockTick(clock_t reloj){
     reloj->ticks++;
-    if (reloj->ticks == reloj->tics_por_segundo) {  ////segundos unidad
+
+    //isAlarmActive(reloj);     ?????
+
+    if (reloj->ticks == reloj->tics_por_segundo) {  //segundos unidad
         reloj->ticks = 0;
         reloj->hora_actual[5]++;
     }
@@ -111,6 +131,17 @@ void ClockTick(clock_t reloj){
     }
 
 }
+
+
+
+
+
+//isAlarmActive()   //ActivarAlarma     //DesactivarAlarma  //setAlarma     //getAlarma
+//posponerAlarma    //AceptadaAlarma
+
+//otra forma es que clock tnga alarma_activa(clock)     //otra forma es crear una hal alarm on y alarm off
+
+
 
 /* === End of documentation ==================================================================== */
 

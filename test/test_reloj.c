@@ -25,14 +25,17 @@
 
 static clock_t reloj;
 static uint8_t hora[TIME_SIZE];
+static uint8_t alarma[TIME_SIZE];
 
 //public function implmenetation 
 
 // la forma en como esta escrito permite que siempre siempre se inicie | suitsetup, suitardown
 void setUp(void){   //codigo de inicializacion
     static const uint8_t INICIAL[] = {1, 2, 3, 4};
+    static const uint8_t INICIAL_ALARMA[] = {1, 2, 3, 5};
     reloj = ClockCreate(TICKS_PER_SECOND);
     ClockSetTime(reloj, INICIAL, sizeof(INICIAL));
+    AlarmSetTime(reloj, INICIAL_ALARMA, sizeof(INICIAL_ALARMA));
 }
 
 // ‣ Al inicializar el reloj está en 00:00 y con hora invalida.
@@ -48,7 +51,6 @@ void test_reloj_arranca_con_hora_invalida(void){
 void test_ajustar_hora(void){      
     static const uint8_t ESPERADO[] = {1, 2, 3, 4, 0, 0};
     uint8_t hora[TIME_SIZE] = {0xFF};
-    clock_t reloj = ClockCreate(TICKS_PER_SECOND);
     TEST_ASSERT_TRUE(ClockSetTime(reloj, ESPERADO, 6));
     TEST_ASSERT_TRUE(ClockGetTime(reloj,hora,sizeof(hora)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO,hora,sizeof(ESPERADO));
@@ -105,5 +107,21 @@ void test_incrementar_dia(void){
     SIMULATE_SECONDS(60*60*24, ClockTick(reloj));
     ClockGetTime(reloj, hora, sizeof(hora));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO,hora, sizeof(ESPERADO));
+}
+
+void test_ajustar_alarma(void){      
+    static const uint8_t ESPERADO[] = {1, 2, 3, 5, 0, 0};
+    uint8_t alarma[TIME_SIZE] = {0xFF};
+    TEST_ASSERT_TRUE(AlarmSetTime(reloj, ESPERADO, 6));
+    TEST_ASSERT_TRUE(AlarmGetTime(reloj, alarma, sizeof(hora)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, alarma, sizeof(ESPERADO));
+}
+
+void test_alarma_activa(void){   
+    SIMULATE_SECONDS(60, ClockTick(reloj));
+    ClockGetTime(reloj, hora, sizeof(hora));
+    AlarmGetTime(reloj, alarma, sizeof(hora));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(alarma, hora, sizeof(hora));
+    TEST_ASSERT_TRUE(isAlarmActive(reloj));
 }
 
