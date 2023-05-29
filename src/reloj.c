@@ -32,6 +32,7 @@ SPDX-License-Identifier: MIT
 
 //! 
 struct clock_s{
+    struct clock_functions_s functions;
     uint8_t hora_actual[TIME_SIZE]; //!<
     uint8_t alarma_actual[TIME_SIZE];
     int tics_por_segundo;   //!<
@@ -87,19 +88,25 @@ bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size){
     return reloj->alarma_estado;
 }
 
-bool isAlarmActive(clock_t reloj){
-    reloj->alarma_activa = false;
-    if (memcmp(reloj->alarma_actual, reloj->hora_actual, TIME_SIZE) == 0){
-        reloj->alarma_activa = true;
-    }
-    return reloj->alarma_activa;
+bool isAlarmActive(clock_t reloj){   
+    return(reloj->alarma_activa);
 }
 
+void CheckAlarmActive(clock_t reloj){
+    if (memcmp(reloj->alarma_actual, reloj->hora_actual, TIME_SIZE) == 0){
+        //reloj->functions.ActivarAlarma(reloj);
+        reloj->alarma_activa = true;
+     }
+}
+
+// void ActivarAlarma(clock_t reloj){
+//     reloj->alarma_activa=true;
+// }
 
 void ClockTick(clock_t reloj){
     reloj->ticks++;
 
-    //isAlarmActive(reloj);     ?????
+    
 
     if (reloj->ticks == reloj->tics_por_segundo) {  //segundos unidad
         reloj->ticks = 0;
@@ -112,6 +119,7 @@ void ClockTick(clock_t reloj){
     if (reloj->hora_actual[4] == 6){    //minutos unidad
         reloj->hora_actual[4] = 0;
         reloj->hora_actual[3]++;
+        CheckAlarmActive(reloj);
     }
     if (reloj->hora_actual[3] == 10){   //minutos decena
         reloj->hora_actual[3] = 0;

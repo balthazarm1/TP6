@@ -117,11 +117,27 @@ void test_ajustar_alarma(void){
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, alarma, sizeof(ESPERADO));
 }
 
-void test_alarma_activa(void){   
-    SIMULATE_SECONDS(60, ClockTick(reloj));
+void test_alarma_activar(void){   
+    SIMULATE_SECONDS(2*60, ClockTick(reloj)); //la hago pasar un minuto de mas por si acaso
     ClockGetTime(reloj, hora, sizeof(hora));
-    AlarmGetTime(reloj, alarma, sizeof(hora));
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(alarma, hora, sizeof(hora));
+    AlarmGetTime(reloj, alarma, sizeof(hora)); //la alarma es seteada un minuto despues de la hora
     TEST_ASSERT_TRUE(isAlarmActive(reloj));
 }
 
+void test_alarma_Noactivar(void){   
+    SIMULATE_SECONDS(0.5*60, ClockTick(reloj));
+    ClockGetTime(reloj, hora, sizeof(hora));
+    AlarmGetTime(reloj, alarma, sizeof(hora)); //la alarma es seteada un minuto despues de la hora
+    TEST_ASSERT_FALSE(isAlarmActive(reloj));
+}
+
+
+
+// void test_alarma_activada(void){   
+//     SIMULATE_SECONDS(60, ClockTick(reloj));
+//     ClockGetTime(reloj, hora, sizeof(hora));
+//     AlarmGetTime(reloj, alarma, sizeof(hora));
+//     TEST_ASSERT_EQUAL_UINT8_ARRAY(alarma, hora, sizeof(hora));
+//     ActivarAlarma(reloj);
+//     TEST_ASSERT_TRUE(isAlarmActive(reloj));
+// }

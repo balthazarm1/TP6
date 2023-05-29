@@ -40,6 +40,26 @@ extern "C" {
 
 typedef struct clock_s  * clock_t;
 
+//! funcion de callback
+typedef void (*clock_ActivarAlarma_t)(clock_t reloj);
+
+//! funcion de callback
+typedef void (*clock_DesactivarAlarma_t)(clock_t reloj);
+
+//! funcion de callback
+typedef void (*clock_PosponerAlarma_t)(clock_t reloj);
+
+//! funcion de callback
+typedef void (*clock_AceptarAlarma_t)(clock_t reloj);
+
+typedef struct clock_functions_s{
+    clock_ActivarAlarma_t ActivarAlarma;
+    clock_DesactivarAlarma_t DesactivarAlarma;
+    clock_PosponerAlarma_t PosponerAlarma;
+    clock_AceptarAlarma_t AceptarAlarma;
+}const * const clock_functions_t;
+
+
 /* === Public variable declarations ============================================================ */
 
 /* === Public function declarations ============================================================ */
@@ -56,7 +76,12 @@ bool AlarmGetTime(clock_t reloj, uint8_t * hora, int size);
 
 bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size);
 
-bool isAlarmActive(clock_t reloj);
+void CheckAlarmActive(clock_t reloj);
+
+bool isAlarmActive(clock_t reloj); 
+
+void ActivarAlarma(clock_t reloj);
+
 
 void ClockTick(clock_t reloj);  //funcion para actualizar la cuenta interna del reloj
 
