@@ -1,11 +1,6 @@
 
 
-// diez segundos, un minutos, diez minutos, una hora, diez 
-// horas y un día completo.
-// ‣ Fijar la hora de la alarma y consultarla.
-// ‣ Fijar la alarma y avanzar el reloj para que suene. 
-// ‣ Fijar la alarma, deshabilitarla y avanzar el reloj para no 
-// suene.
+
 // ‣ Hacer sonar la alarma y posponerla. 
 // ‣ Hacer sonar la alarma y cancelarla hasta el otro dia..
 
@@ -115,6 +110,8 @@ void test_incrementar_dia(void){
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO,hora, sizeof(ESPERADO));
 }
 
+
+// ‣ Fijar la hora de la alarma y consultarla.
 void test_ajustar_alarma(void){      
     static const uint8_t ESPERADO[] = {1, 2, 3, 5, 0, 0};
     uint8_t alarma[TIME_SIZE] = {0xFF};
@@ -123,17 +120,27 @@ void test_ajustar_alarma(void){
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO, alarma, sizeof(ESPERADO));
 }
 
-void test_alarma_activar(void){   
+// ‣ Fijar la alarma y avanzar el reloj para que suene. 
+void test_alarma_activada(void){   
     SIMULATE_SECONDS(2*60, ClockTick(reloj)); //la hago pasar un minuto de mas por si acaso
     ClockGetTime(reloj, hora, sizeof(hora));
     AlarmGetTime(reloj, alarma, sizeof(hora)); //la alarma es seteada un minuto despues de la hora
     TEST_ASSERT_TRUE(evento_alarma_notificado);
 }
 
-void test_alarma_Noactivar(void){   
+void test_alarma_Noactivada(void){   
     SIMULATE_SECONDS(0.5*60, ClockTick(reloj));
     ClockGetTime(reloj, hora, sizeof(hora));
     AlarmGetTime(reloj, alarma, sizeof(hora)); //la alarma es seteada un minuto despues de la hora
     TEST_ASSERT_FALSE(evento_alarma_notificado);
+}
+
+// ‣ Fijar la alarma, deshabilitarla y avanzar el reloj para no suene.
+void test_alarma_deshabilitada(void){   
+    SIMULATE_SECONDS(2*60, ClockTick(reloj)); //la hago pasar un minuto de mas por si acaso
+    ClockGetTime(reloj, hora, sizeof(hora));
+    AlarmGetTime(reloj, alarma, sizeof(hora)); //la alarma es seteada un minuto despues de la hora
+    DesactivarAlarma(reloj);
+    TEST_ASSERT_FALSE(isAlarmActive(reloj));
 }
 

@@ -89,14 +89,22 @@ bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size){
     return reloj->alarma_estado;
 }
 
-// bool isAlarmActive(clock_t reloj){   
-//     return(reloj->alarma_activa);
-// }
-
 void CheckAlarmActive(clock_t reloj){
     if (memcmp(reloj->alarma_actual, reloj->hora_actual, TIME_SIZE) == 0){
         reloj->handler(reloj);
      }
+}
+
+bool isAlarmActive(clock_t reloj){   
+     return(reloj->alarma_activa);
+}
+
+void ActivarAlarma(clock_t reloj){
+    reloj->alarma_activa = true;
+}
+
+void DesactivarAlarma(clock_t reloj){
+    reloj->alarma_activa = false;
 }
 
 void ClockTick(clock_t reloj){

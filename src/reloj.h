@@ -61,11 +61,14 @@ bool AlarmGetTime(clock_t reloj, uint8_t * hora, int size);
 
 bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size);
 
+bool isAlarmActive(clock_t reloj);
+
 void CheckAlarmActive(clock_t reloj);
 
-bool isAlarmActive(clock_t reloj); 
-
 void ActivarAlarma(clock_t reloj);
+
+void DesactivarAlarma(clock_t reloj);
+
 
 
 void ClockTick(clock_t reloj);  //funcion para actualizar la cuenta interna del reloj
