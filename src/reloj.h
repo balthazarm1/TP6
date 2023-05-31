@@ -41,23 +41,8 @@ extern "C" {
 typedef struct clock_s  * clock_t;
 
 //! funcion de callback
-typedef void (*clock_ActivarAlarma_t)(clock_t reloj);
+typedef void (*clock_event_t)(clock_t reloj);
 
-//! funcion de callback
-typedef void (*clock_DesactivarAlarma_t)(clock_t reloj);
-
-//! funcion de callback
-typedef void (*clock_PosponerAlarma_t)(clock_t reloj);
-
-//! funcion de callback
-typedef void (*clock_AceptarAlarma_t)(clock_t reloj);
-
-typedef struct clock_functions_s{
-    clock_ActivarAlarma_t ActivarAlarma;
-    clock_DesactivarAlarma_t DesactivarAlarma;
-    clock_PosponerAlarma_t PosponerAlarma;
-    clock_AceptarAlarma_t AceptarAlarma;
-}const * const clock_functions_t;
 
 
 /* === Public variable declarations ============================================================ */
@@ -66,7 +51,7 @@ typedef struct clock_functions_s{
 
 
 
-clock_t ClockCreate(int tics_por_segundo);
+clock_t ClockCreate(int tics_por_segundo, clock_event_t handler);
 
 bool ClockGetTime(clock_t reloj, uint8_t * hora, int size);
 

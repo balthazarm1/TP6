@@ -26,6 +26,11 @@
 static clock_t reloj;
 static uint8_t hora[TIME_SIZE];
 static uint8_t alarma[TIME_SIZE];
+static bool evento_alarma_notificado;
+
+void funcion_alarma_notificar(clock_t reloj){
+    evento_alarma_notificado = true;
+}
 
 //public function implmenetation 
 
@@ -33,7 +38,8 @@ static uint8_t alarma[TIME_SIZE];
 void setUp(void){   //codigo de inicializacion
     static const uint8_t INICIAL[] = {1, 2, 3, 4};
     static const uint8_t INICIAL_ALARMA[] = {1, 2, 3, 5};
-    reloj = ClockCreate(TICKS_PER_SECOND);
+    evento_alarma_notificado = false;
+    reloj = ClockCreate(TICKS_PER_SECOND, funcion_alarma_notificar);
     ClockSetTime(reloj, INICIAL, sizeof(INICIAL));
     AlarmSetTime(reloj, INICIAL_ALARMA, sizeof(INICIAL_ALARMA));
 }
@@ -41,7 +47,7 @@ void setUp(void){   //codigo de inicializacion
 // ‣ Al inicializar el reloj está en 00:00 y con hora invalida.
 void test_reloj_arranca_con_hora_invalida(void){
     static const uint8_t ESPERADO[] = {0, 0, 0, 0, 0, 0};
-    reloj = ClockCreate(TICKS_PER_SECOND); 
+    reloj = ClockCreate(TICKS_PER_SECOND, funcion_alarma_notificar); 
     uint8_t hora[TIME_SIZE] = {0xFF};
     TEST_ASSERT_FALSE(ClockGetTime(reloj,hora,sizeof(hora)));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ESPERADO,hora,sizeof(ESPERADO));
@@ -121,23 +127,13 @@ void test_alarma_activar(void){
     SIMULATE_SECONDS(2*60, ClockTick(reloj)); //la hago pasar un minuto de mas por si acaso
     ClockGetTime(reloj, hora, sizeof(hora));
     AlarmGetTime(reloj, alarma, sizeof(hora)); //la alarma es seteada un minuto despues de la hora
-    TEST_ASSERT_TRUE(isAlarmActive(reloj));
+    TEST_ASSERT_TRUE(evento_alarma_notificado);
 }
 
 void test_alarma_Noactivar(void){   
     SIMULATE_SECONDS(0.5*60, ClockTick(reloj));
     ClockGetTime(reloj, hora, sizeof(hora));
     AlarmGetTime(reloj, alarma, sizeof(hora)); //la alarma es seteada un minuto despues de la hora
-    TEST_ASSERT_FALSE(isAlarmActive(reloj));
+    TEST_ASSERT_FALSE(evento_alarma_notificado);
 }
 
-
-
-// void test_alarma_activada(void){   
-//     SIMULATE_SECONDS(60, ClockTick(reloj));
-//     ClockGetTime(reloj, hora, sizeof(hora));
-//     AlarmGetTime(reloj, alarma, sizeof(hora));
-//     TEST_ASSERT_EQUAL_UINT8_ARRAY(alarma, hora, sizeof(hora));
-//     ActivarAlarma(reloj);
-//     TEST_ASSERT_TRUE(isAlarmActive(reloj));
-// }

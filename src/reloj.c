@@ -32,7 +32,7 @@ SPDX-License-Identifier: MIT
 
 //! 
 struct clock_s{
-    struct clock_functions_s functions;
+    clock_event_t handler;
     uint8_t hora_actual[TIME_SIZE]; //!<
     uint8_t alarma_actual[TIME_SIZE];
     int tics_por_segundo;   //!<
@@ -55,9 +55,10 @@ struct clock_s{
 
 /* === Public function implementation ========================================================== */
 
-clock_t ClockCreate(int tics_por_segundo){
+clock_t ClockCreate(int tics_por_segundo, clock_event_t handler){
     static struct clock_s self[1];
     memset(self, 0, sizeof(self));
+    self->handler = handler;
     self->tics_por_segundo = tics_por_segundo;
     return self;
 }
@@ -88,20 +89,15 @@ bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size){
     return reloj->alarma_estado;
 }
 
-bool isAlarmActive(clock_t reloj){   
-    return(reloj->alarma_activa);
-}
+// bool isAlarmActive(clock_t reloj){   
+//     return(reloj->alarma_activa);
+// }
 
 void CheckAlarmActive(clock_t reloj){
     if (memcmp(reloj->alarma_actual, reloj->hora_actual, TIME_SIZE) == 0){
-        //reloj->functions.ActivarAlarma(reloj);
-        reloj->alarma_activa = true;
+        reloj->handler(reloj);
      }
 }
-
-// void ActivarAlarma(clock_t reloj){
-//     reloj->alarma_activa=true;
-// }
 
 void ClockTick(clock_t reloj){
     reloj->ticks++;
