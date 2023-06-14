@@ -49,4 +49,6 @@ compactar, con la decena de horas en la primera posición y la unidad de los seg
 
 ## Terminal - Comandos
 
-**ceedling**                    ->  Ejecuta los tests
+**ceedling**        ->      Ejecuta los tests
+
+**make doc**        ->      Crea el archivo de documentación

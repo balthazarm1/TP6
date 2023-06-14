@@ -44,27 +44,26 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+//! Define el tamaño de los vectores hora y alarma
 #define TIME_SIZE 6
 
 /* === Public data type declarations =========================================================== */
 
 //! Estructura anonima para almacenar datos y funciones del reloj con campos desconocidos
-typedef struct clock_s  * clock_t;
+typedef struct clock_s * clock_t;
 
 //! Funcion de Callback de la estructura reloj
 typedef void (*clock_event_t)(clock_t reloj);
-
-
 
 /* === Public variable declarations ============================================================ */
 
 /* === Public function declarations ============================================================ */
 
-
 /**
  ** @brief Funcion para crear e iniciar el reloj
  **
- ** @param tics_por_segundo Indica cuantos ticks(pulsos) se necesitaran para que el reloj cuente un seg
+ ** @param tics_por_segundo Indica cuantos ticks(pulsos) se necesitaran para que el reloj cuente un
+ *seg
  ** @param handler Puntero a la funcion de CallBack del reloj para activar la alarma
  **
  ** @return Devuelve un puntero al reloj creado
@@ -120,10 +119,19 @@ void ClockSetAlarm(clock_t reloj, const uint8_t * hora, int size);
  **/
 void ClockAlarmToggle(clock_t reloj);
 
-//! A
+/**
+ ** @brief Funcion para desactivar la alarma una vez que suene cuando fue pospuesta
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ **/
 void ClockStopAlarm(clock_t reloj);
 
-//! A
+/**
+ ** @brief Funcion que pospondra la alarma del reloj
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ ** @param tiempo Entero que indica cuantos minutos se desean posponer
+ **/
 void ClockPostponeAlarm(clock_t reloj, uint8_t tiempo);
 
 /**
