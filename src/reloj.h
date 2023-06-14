@@ -22,6 +22,15 @@ SPDX-License-Identifier: MIT
 #ifndef RELOJ_H
 #define RELOJ_H
 
+/**
+ ** \author Balthazar Martin
+ ** \date 14/06/23
+ ** \brief Declaraciones publicas / Libreria del modulo reloj
+ **
+ ** \addtogroup reloj reloj.h
+ ** \brief Declaraciones publicas para las funciones del reloj
+ ** @{ */
+
 /* === Headers files inclusions ================================================================ */
 
 /* === Cabecera C++ ============================================================================ */
@@ -35,12 +44,14 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#define TIME_SIZE 6
 
 /* === Public data type declarations =========================================================== */
 
+//! Estructura anonima para almacenar datos y funciones del reloj con campos desconocidos
 typedef struct clock_s  * clock_t;
 
-//! funcion de callback
+//! Funcion de Callback de la estructura reloj
 typedef void (*clock_event_t)(clock_t reloj);
 
 
@@ -50,28 +61,84 @@ typedef void (*clock_event_t)(clock_t reloj);
 /* === Public function declarations ============================================================ */
 
 
-
+/**
+ ** @brief Funcion para crear e iniciar el reloj
+ **
+ ** @param tics_por_segundo Indica cuantos ticks(pulsos) se necesitaran para que el reloj cuente un seg
+ ** @param handler Puntero a la funcion de CallBack del reloj para activar la alarma
+ **
+ ** @return Devuelve un puntero al reloj creado
+ **/
 clock_t ClockCreate(int tics_por_segundo, clock_event_t handler);
 
+/**
+ ** @brief Funcion para consultar la hora actual del reloj
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ ** @param hora Arreglo que tomara la hora actual del reloj
+ ** @param size Tamaño del arreglo de la hora
+ **
+ ** @return true La hora es valida para consultarla
+ ** @return false La hora no fue configurada y no se la puede consultar
+ **/
 bool ClockGetTime(clock_t reloj, uint8_t * hora, int size);
 
-bool ClockSetTime(clock_t reloj, const uint8_t * hora, int size);
+/**
+ ** @brief Funcion para configurar y fijar la hora actual del reloj
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ ** @param hora Arreglo de la hora con que se configurara la hora del reloj
+ ** @param size Tamaño del arreglo de la hora
+ **/
+void ClockSetTime(clock_t reloj, const uint8_t * hora, int size);
 
-bool AlarmGetTime(clock_t reloj, uint8_t * hora, int size);
+/**
+ ** @brief Funcion para consultar la alarma actual del reloj
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ ** @param hora Arreglo que tomara la alarma actual del reloj
+ ** @param size Tamaño del arreglo de la hora
+ **
+ ** @return true La hora es valida para consultarla
+ ** @return false La alarma no fue configurada y no se la puede consultar
+ **/
+bool ClockGetAlarm(clock_t reloj, uint8_t * hora, int size);
 
-bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size);
+/**
+ ** @brief Funcion para configurar y fijar la alarma actual del reloj
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ ** @param hora Arreglo de la hora con que se configurara la alarma del reloj
+ ** @param size Tamaño del arreglo de la hora
+ **/
+void ClockSetAlarm(clock_t reloj, const uint8_t * hora, int size);
 
-bool isAlarmActive(clock_t reloj);
+/**
+ ** @brief Funcion para habilitar o deshabilitar la alarma del reloj
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ **/
+void ClockAlarmToggle(clock_t reloj);
 
+//! A
+void ClockStopAlarm(clock_t reloj);
+
+//! A
+void ClockPostponeAlarm(clock_t reloj, uint8_t tiempo);
+
+/**
+ ** @brief Funcion que verificara por cada minuto que pase si la alarma sonara o no
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ **/
 void CheckAlarmActive(clock_t reloj);
 
-void ActivarAlarma(clock_t reloj);
-
-void DesactivarAlarma(clock_t reloj);
-
-
-
-void ClockTick(clock_t reloj);  //funcion para actualizar la cuenta interna del reloj
+/**
+ ** @brief Funcion para actualizar la cuenta interna del reloj
+ **
+ ** @param reloj Puntero al reloj que fue creado
+ **/
+void ClockTick(clock_t reloj);
 
 /* === End of documentation ==================================================================== */
 

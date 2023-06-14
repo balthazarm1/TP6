@@ -19,6 +19,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 SPDX-License-Identifier: MIT
 *************************************************************************************************/
 
+/**
+ ** \author Balthazar Martin
+ ** \date 14/06/23
+ ** \brief Implemtancion de la Libreria del modulo reloj
+ **
+ ** \addtogroup reloj reloj.h
+ ** \brief Implementacion de las funciones del reloj
+ ** @{ */
+
 /* === Headers files inclusions =============================================================== */
 
 #include "reloj.h"
@@ -26,26 +35,36 @@ SPDX-License-Identifier: MIT
 
 /* === Macros definitions ====================================================================== */
 
-#define TIME_SIZE 6
-
 /* === Private data type declarations ========================================================== */
 
-//! 
+//! Estructura publica del reloj con la hora y alarma
 struct clock_s{
-    clock_event_t handler;
-    uint8_t hora_actual[TIME_SIZE]; //!<
-    uint8_t alarma_actual[TIME_SIZE];
-    int tics_por_segundo;   //!<
-    int ticks;  //!<
-    bool valida;    //!<
-    bool alarma_estado;
-    bool alarma_activa;
+    clock_event_t handler; //!< Funcion de CallBack para activar la alarma
+    uint8_t hora_actual[TIME_SIZE]; //!< Arreglo de 1 byte para indicar la hora actual del reloj
+    uint8_t alarma_actual[TIME_SIZE]; //!< Arreglo para indicar la alarma actual del reloj
+    uint8_t alarma_reservada[TIME_SIZE]; //!< Arreglo para guardar la alarma por si se la pospone
+    int tics_por_segundo; //!< Indica cuantos ticks(pulsos) por segundo hara el reloj al ser creado
+    int ticks;  //!< Indica cuantos ticks(pulsos) va haciendo el reloj
+    bool reloj_estado; //!< Booleano para indicar si la hora del reloj esta configurado o no
+    bool alarma_estado; //!< Indica si la alarma del reloj esta activa o no
+    bool alarma_postergada; //!< Indica si la alarma fue postergada o no
+    //bool alarma_activa;
 };
+
+/* === Public data type declarations =========================================================== */
     
+/* === Public variable declarations =========================================================== */
 
 /* === Private variable declarations =========================================================== */
 
 /* === Private function declarations =========================================================== */
+
+//  FALTA DOCUMENTACION DE ESTO
+//! A
+void TraducirMinutos(uint8_t minutos, uint8_t tiempo_post[]);
+
+//! A
+void SumarHorarios(uint8_t alarma_actual[], uint8_t time_post[], uint8_t resultado[]);
 
 /* === Public variable definitions ============================================================= */
 
@@ -55,6 +74,7 @@ struct clock_s{
 
 /* === Public function implementation ========================================================== */
 
+//! A
 clock_t ClockCreate(int tics_por_segundo, clock_event_t handler){
     static struct clock_s self[1];
     memset(self, 0, sizeof(self));
@@ -63,54 +83,102 @@ clock_t ClockCreate(int tics_por_segundo, clock_event_t handler){
     return self;
 }
 
+//! A
 bool ClockGetTime(clock_t reloj, uint8_t * hora, int size){
-    //memset(hora, 0, size);
     memcpy(hora, reloj->hora_actual, size);
-    return reloj->valida;
+    return reloj->reloj_estado;
 }
 
-bool ClockSetTime(clock_t reloj, const uint8_t * hora, int size){
-    //memset(hora, 0, size);
+//! A
+void ClockSetTime(clock_t reloj, const uint8_t * hora, int size){
     memcpy(reloj->hora_actual, hora,size);
-    reloj->valida = true;
-    return true;
+    reloj->reloj_estado = true;
 }
 
-bool AlarmGetTime(clock_t reloj, uint8_t * hora, int size){
-    //memset(hora, 0, size);
+//! A
+bool ClockGetAlarm(clock_t reloj, uint8_t * hora, int size){
     memcpy(hora, reloj->alarma_actual, size);
     return reloj->alarma_estado;
 }
 
-bool AlarmSetTime(clock_t reloj, const uint8_t * hora, int size){
-    //memset(hora, 0, size);
+//! A
+void ClockSetAlarm(clock_t reloj, const uint8_t * hora, int size){
     memcpy(reloj->alarma_actual, hora,size);
     reloj->alarma_estado = true;
-    return reloj->alarma_estado;
 }
 
+//! A
 void CheckAlarmActive(clock_t reloj){
-    if (memcmp(reloj->alarma_actual, reloj->hora_actual, TIME_SIZE) == 0){
+    if ( memcmp(reloj->alarma_actual, reloj->hora_actual, TIME_SIZE) == 0  && reloj->alarma_estado ){
         reloj->handler(reloj);
      }
 }
 
-bool isAlarmActive(clock_t reloj){   
-     return(reloj->alarma_activa);
+//! A
+void ClockAlarmToggle(clock_t reloj){
+    reloj->alarma_estado = !reloj->alarma_estado;   
 }
 
-void ActivarAlarma(clock_t reloj){
-    reloj->alarma_activa = true;
+//! A
+void ClockStopAlarm(clock_t reloj){
+    if(reloj->alarma_postergada && reloj->alarma_estado){
+        memcpy(reloj->alarma_actual, reloj->alarma_reservada, sizeof(reloj->alarma_reservada));
+        reloj->alarma_postergada = false;
+    }
 }
 
-void DesactivarAlarma(clock_t reloj){
-    reloj->alarma_activa = false;
+//! A
+void TraducirMinutos(uint8_t minutos, uint8_t tiempo_post[]) {
+    // Obtener las horas
+    uint8_t horas = minutos / 60;
+
+    // Obtener las decenas y unidades de la hora
+    tiempo_post[0] = horas / 10;
+    tiempo_post[1] = horas % 10;
+
+    // Obtener las decenas y unidades de los minutos
+    tiempo_post[2] = (minutos % 60) / 10;
+    tiempo_post[3] = (minutos % 60) % 10;
+
 }
 
+//! A
+void SumarHorarios(uint8_t alarma_actual[], uint8_t time_post[], uint8_t resultado[]) {
+    uint8_t carry = 0; // Variable para llevar el acarreo
+
+        // Suma de los minutos
+        resultado[3] = (alarma_actual[3] + time_post[3] + carry) % 10;
+        carry = (alarma_actual[3] + time_post[3] + carry) / 10;
+
+        // Suma de las decenas de minutos
+        resultado[2] = (alarma_actual[2] + time_post[2] + carry) % 6;
+        carry = (alarma_actual[2] + time_post[2] + carry) / 6;
+
+        // Suma de las horas
+        resultado[1] = (alarma_actual[1] + time_post[1] + carry) % 10;
+        carry = (alarma_actual[1] + time_post[1] + carry) / 10;
+
+        // Suma de las decenas de horas
+        resultado[0] = (alarma_actual[0] + time_post[0] + carry) % 3;
+        carry = (alarma_actual[1] + time_post[1] + carry) % 3;
+
+}
+
+//! A
+void ClockPostponeAlarm(clock_t reloj, uint8_t tiempo){
+    uint8_t time_post[TIME_SIZE];
+    uint8_t time[TIME_SIZE];
+
+    memcpy(reloj->alarma_reservada, reloj->alarma_actual, TIME_SIZE); //dudo si puedo usar time_size
+    reloj->alarma_postergada = true;
+    TraducirMinutos(tiempo, time_post);
+    SumarHorarios(reloj->alarma_actual, time_post, time);
+    memcpy(reloj->alarma_actual, time, sizeof(time));
+}
+
+//! A
 void ClockTick(clock_t reloj){
     reloj->ticks++;
-
-    
 
     if (reloj->ticks == reloj->tics_por_segundo) {  //segundos unidad
         reloj->ticks = 0;
@@ -143,17 +211,6 @@ void ClockTick(clock_t reloj){
     }
 
 }
-
-
-
-
-
-//isAlarmActive()   //ActivarAlarma     //DesactivarAlarma  //setAlarma     //getAlarma
-//posponerAlarma    //AceptadaAlarma
-
-//otra forma es que clock tnga alarma_activa(clock)     //otra forma es crear una hal alarm on y alarm off
-
-
 
 /* === End of documentation ==================================================================== */
 
